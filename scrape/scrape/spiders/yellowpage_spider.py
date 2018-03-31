@@ -2,7 +2,8 @@ import scrapy
 import sys
 import random
 import csv
-
+from scrape.items import Item
+from var_dump import var_dump
 
 search_item = input("Input The Search Item: ")
 location = input("Location:")
@@ -15,15 +16,6 @@ location = input("Location:")
 # ]
 
 # rancity = random.choice(city)
-
-
-
-class Item(scrapy.Item):
-    business_name = scrapy.Field()
-    website = scrapy.Field()
-    phonenumber = scrapy.Field()
-    email = scrapy.Field()
-    location = scrapy.Field()
 
 
 class YellowSpider(scrapy.Spider):
@@ -61,15 +53,15 @@ class YellowSpider(scrapy.Spider):
             item['email'] = [item[7:] for item in s]
 
             item['phonenumber'] = business.css('p.phone::text').extract_first()
-            for x in item['business_name']:
+            for x in item['email']:
                 #new code here, call to self.seen_business_names
-                if x not in self.seen_business_names:
-                    if item['business_name']:
+                if x not in self.seen_emails:
+                    if item['email']:
                         if item['phonenumber']:
-                            if item['email']:
-                                if item['website']:
-                                    yield item
-                                    self.seen_business_names.append(x)
+                            if item['website']:
+                                self.seen_emails.append(x)
+                                yield item
+                           
                                     
                 
                                 

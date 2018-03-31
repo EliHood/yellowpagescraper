@@ -9,14 +9,13 @@ import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, MapCompose, Join
 
-class MyItemLoader(ItemLoader):
-    default_output_processor = TakeFirst()
 
-    message_in = MapCompose(unicode, unicode.strip)
-    message_out = Join()
+class Item(scrapy.Item):
+    business_name = scrapy.Field()
+    website = scrapy.Field()
+    phonenumber = scrapy.Field()
+    email = scrapy.Field()
+    location = scrapy.Field()
+    visit_id = scrapy.Field()
+    visit_status = scrapy.Field()
 
-
-# class ScrapeItem(scrapy.Item):
-#     # define the fields for your item here like:
-#     # name = scrapy.Field()
-#     pass

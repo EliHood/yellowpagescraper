@@ -48,6 +48,7 @@ ROBOTSTXT_OBEY = True
 # See https://doc.scrapy.org/en/latest/topics/spider-middleware.html
 SPIDER_MIDDLEWARES = {
    'scrape.middlewares.ScrapeSpiderMiddleware': 543,
+   'scrape.middlewares.IgnoreVisitedItems': 560,
 }
 
 # Enable or disable downloader middlewares
@@ -66,8 +67,15 @@ SPIDER_MIDDLEWARES = {
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'scrape.pipelines.myExporter': 400,
+   'scrape.pipelines.MongoPipeline': 410,
 }
 
+MONGODB_HOST = 'localhost' # Change in prod
+MONGODB_PORT = 27017 # Change in prod
+MONGODB_DATABASE = "myitems" # Change in prod
+MONGODB_COLLECTION = "scrapy_items"
+MONGODB_USERNAME = "" # Change in prod
+MONGODB_PASSWORD = "" # Change in prod
 
 
 
