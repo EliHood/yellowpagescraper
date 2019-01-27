@@ -71,7 +71,7 @@ ITEM_PIPELINES = {
 }
 
 MONGODB_HOST = 'localhost' # Change in prod
-MONGODB_PORT = 27017 # Change in prod
+MONGODB_PORT =  27017 # Change in prod
 MONGODB_DATABASE = "myitems" # Change in prod
 MONGODB_COLLECTION = "scrapy_items"
 MONGODB_USERNAME = "" # Change in prod

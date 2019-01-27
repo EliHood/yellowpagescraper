@@ -13,8 +13,16 @@ import pymongo
 from scrapy.conf import settings
 from scrapy import log
 
-SRCFILE = '/Users/poweruser/Applications/pythonwork/bbbscrap2/scrape/output%s.csv'
-DESTINATION_FOLDER = '/Users/poweruser/Applications/pythonwork/leadparser/newfiles'
+
+# get current working directory
+cwd = os.getcwd()
+# get the file 
+ourPath = '/output%s.csv'
+# appends the file to the working directory
+SRCFILE = cwd + os.path.join(ourPath)
+
+DESTINATION_FOLDER = '/pythonwork/leadparser'
+
 
 class myExporter(object):
 

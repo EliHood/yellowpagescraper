@@ -8,6 +8,8 @@
 import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst, MapCompose, Join
+from scrapy.item import Item, Field
+from collections import defaultdict
 
 
 class Item(scrapy.Item):
@@ -16,6 +18,13 @@ class Item(scrapy.Item):
     phonenumber = scrapy.Field()
     email = scrapy.Field()
     location = scrapy.Field()
+    second_location = scrapy.Field()
+ 
+
+    # third_location = scrapy.Field()
+    # fourth_location = scrapy.Field()
     visit_id = scrapy.Field()
     visit_status = scrapy.Field()
+
+
 
