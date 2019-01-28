@@ -21,8 +21,8 @@ ourPath = '/output%s.csv'
 # appends the file to the working directory
 SRCFILE = cwd + os.path.join(ourPath)
 
-DESTINATION_FOLDER = '/pythonwork/leadparser'
-
+DESTINATION_FOLDER = os.path.join( os.getenv('HOME'), 'Downloads')
+# MyDest = '/pythonwork/leadparser'
 
 class myExporter(object):
 

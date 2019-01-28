@@ -1,9 +1,9 @@
-# yellowpagescraper
+# Yellow Page Scraper
 
-#install the following
-#pymongo
-#mongod
-#scrapy
-# brew services start mongodb
+# install the following
+# pymongo
+# mongod
+# scrapy
 
-#I may docker this
+### `python app.py`
+
