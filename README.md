@@ -1,9 +1,9 @@
 # Yellow Page Scraper
 
 # install the following
-# pymongo
-# mongod
-# scrapy
+#### pymongo
+#### mongod
+#### scrapy
 
-### `python app.py`
+ `python app.py`
 
