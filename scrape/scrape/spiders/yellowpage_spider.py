@@ -233,3 +233,5 @@ class YellowSpider(scrapy.Spider):
                             if item['website']:
                                 self.seen_emails.append(x)
                                 yield item                                 
+
+

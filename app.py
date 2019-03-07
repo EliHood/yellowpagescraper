@@ -1,11 +1,17 @@
 import os
-import subprocess 
+from subprocess import call
 
-cw = os.getcwd()
-path = '/scrape'
-ourPath = cw + os.path.join(path)
 
-if(ourPath):
-    os.chdir(ourPath)
-    os.system('scrapy crawl yellow')
 
+def main():
+    owl = os.path.abspath('scrape')
+    myOwl = '/pythonwork/bbbscrap2/scrape'
+    # print(myOwl)
+    # print(os.path.abspath(cwd))
+
+    ourPath = ['scrapy','crawl', 'yellow']
+    name = "yellow"
+    call(["scrapy", "crawl", "{0}".format(name)], cwd=myOwl)
+
+if __name__ == "__main__" :
+    main()
