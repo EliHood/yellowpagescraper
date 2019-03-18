@@ -1,5 +1,14 @@
+
+import os
+import json
 from functools import partial
 from PyQt5 import QtCore, QtGui, QtWidgets
+import utils
+
+
+dir_path = os.path.dirname(os.path.abspath(__file__))
+icons_dir = os.path.join(dir_path, 'assets', 'icons')
+
 
 class ScrapyWorker(QtCore.QObject):
     logChanged = QtCore.pyqtSignal(str)
@@ -11,13 +20,13 @@ class ScrapyWorker(QtCore.QObject):
         self._process = QtCore.QProcess(self)
         self._process.setProcessChannelMode(QtCore.QProcess.MergedChannels)
         self._process.readyReadStandardOutput.connect(self.on_readyReadStandardOutput)
-        self._process.setProgram('scrapy')
         self._process.started.connect(self.started)
         self._process.finished.connect(self.finished)
 
-    def run(self, project, spider):
+    def run(self, project, program, arguments):
         self._process.setWorkingDirectory(project)
-        self._process.setArguments(['crawl', spider])
+        self._process.setProgram('scrapy')
+        self._process.setArguments(arguments)
         self._process.start()
 
     @QtCore.pyqtSlot()
@@ -29,110 +38,91 @@ class ScrapyWorker(QtCore.QObject):
     def stop(self):
         self._process.kill()
 
-    def spiders(self, project):
-        process = QtCore.QProcess()
-        process.setProcessChannelMode(QtCore.QProcess.MergedChannels)
-        process.setWorkingDirectory(project)
-        loop = QtCore.QEventLoop()
-        process.finished.connect(loop.quit)
-        process.start('scrapy', ['list'])
-        loop.exec_()
-        return process.readAllStandardOutput().data().decode().split()
-
-class MainWindow(QtWidgets.QMainWindow):
+class LocationWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent)
+        super(LocationWidget, self).__init__(parent)
+        self.lay = QtWidgets.QVBoxLayout(self)
+        self.lay.setContentsMargins(0, 0, 0, 0)
+        self.lay.addStretch()
+        self.setContentsMargins(0, 0, 0, 0)
+        self.widgets = []
+        self.create_row()
 
-        self.project_le = QtWidgets.QLineEdit()
-        self.project_button = QtWidgets.QPushButton('Select Project')
-        self.spider_combobox = QtWidgets.QComboBox()
+    def create_row(self):
+        widget = QtWidgets.QWidget()
+        widget.setContentsMargins(0, 0, 0, 0)
+        hlay = QtWidgets.QHBoxLayout(widget)
+        hlay.setContentsMargins(0, 0, 0, 0)
+        lineedit = QtWidgets.QLineEdit()
+        button = QtWidgets.QToolButton(clicked=self.on_clicled)
+        button.setFocusPolicy(QtCore.Qt.NoFocus)
+        hlay.addWidget(lineedit)
+        hlay.addWidget(button)
+        button.setIconSize(QtCore.QSize(24, 24))
+        button.setIcon(QtGui.QIcon(os.path.join(icons_dir, 'add.png')))
+        self.widgets.append(widget)
+        self.lay.insertWidget(-1, widget)
+
+    @QtCore.pyqtSlot()
+    def on_clicled(self):
+        button = self.sender()
+        widget = button.parentWidget()
+        if self.lay.indexOf(widget) == (self.lay.count()-1):
+            self.create_row()
+        else:
+            self.lay.removeWidget(widget)
+            widget.deleteLater()
+            self.widgets.remove(widget)
+        for widget in self.widgets:
+            button = widget.findChild(QtWidgets.QToolButton)
+            button.setIcon(QtGui.QIcon(os.path.join(icons_dir, 'remove.png')))
+        self.widgets[-1].findChild(QtWidgets.QToolButton).setIcon(QtGui.QIcon(os.path.join(icons_dir, 'add.png')))
+
+    def get_locations(self):
+        locations = []
+        for widget in self.widgets:
+            le = widget.findChild(QtWidgets.QLineEdit)
+            if le.text():
+                locations.append(le.text())
+        return locations
+
+class YellowWidget(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        super(YellowWidget, self).__init__(parent)
+        self.setWindowTitle('Yellow Pages Scrapper')
+        self.scrapy_worker = ScrapyWorker(self)
+        self.search_item_le = QtWidgets.QLineEdit()
+        self.location_widget = LocationWidget()
         self.start_stop_button = QtWidgets.QPushButton("Start", checkable=True)
         self.text_edit = QtWidgets.QTextBrowser()
-        self.input = QtWidgets.QLineEdit()
-        self.input1 = QtWidgets.QLineEdit()
-        self.input2 = QtWidgets.QLineEdit()
-        self.input3 = QtWidgets.QLineEdit()
-        self.input4 = QtWidgets.QLineEdit()
-        self.input5 = QtWidgets.QLineEdit()
-        self.input6 = QtWidgets.QLineEdit()
+
         central_widget = QtWidgets.QWidget()
         self.setCentralWidget(central_widget)
+        lay = QtWidgets.QGridLayout(central_widget)
+        lay.addWidget(QtWidgets.QLabel("<b>Search:</b>"), 0, 0)
+        lay.addWidget(self.search_item_le, 0, 1)
+        lay.addWidget(QtWidgets.QLabel("<b>Locations:</b>"), 1, 0, alignment=QtCore.Qt.AlignTop|QtCore.Qt.AlignLeft)
+        lay.addWidget(self.location_widget, 1, 1, alignment=QtCore.Qt.AlignTop)
+        lay.addWidget(self.start_stop_button, 2, 0, 1, 2)
+        lay.addWidget(self.text_edit, 3, 0, 1, 2)
 
-        lay = QtWidgets.QVBoxLayout(central_widget)
-        hlay = QtWidgets.QHBoxLayout()
-        hlay.addWidget(self.project_le)
-        hlay.addWidget(self.project_button)
-        lay.addLayout(hlay)
-        hlay2 = QtWidgets.QHBoxLayout()
-        hlay2.addWidget(QtWidgets.QLabel("Input The Search Item :"))
-        hlay2.addWidget(self.input, 1)
-        hlay3 = QtWidgets.QHBoxLayout()
-        hlay4 = QtWidgets.QHBoxLayout()
-        hlay5 = QtWidgets.QHBoxLayout()
-        hlay6 = QtWidgets.QHBoxLayout()
-        hlay7 = QtWidgets.QHBoxLayout()
-        hlay8 = QtWidgets.QHBoxLayout()
-        hlay3.addWidget(QtWidgets.QLabel("Location :"))
-        hlay3.addWidget(self.input1, 1 )
-        hlay4.addWidget(QtWidgets.QLabel("Location 2 :"))
-        hlay4.addWidget(self.input2, 1 )
-        hlay5.addWidget(QtWidgets.QLabel("Location 3 :"))
-        hlay5.addWidget(self.input3, 1 )
-        hlay6.addWidget(QtWidgets.QLabel("Location 4 :"))
-        hlay6.addWidget(self.input4, 1 )
-        hlay7.addWidget(QtWidgets.QLabel("Location 5 :"))
-        hlay7.addWidget(self.input5, 1 )
-        hlay8.addWidget(QtWidgets.QLabel("Location 6 :"))
-        hlay8.addWidget(self.input6, 1 )
-        lay.addLayout(hlay2)
-        lay.addLayout(hlay3)
-        lay.addLayout(hlay4)
-        lay.addLayout(hlay5)
-        lay.addLayout(hlay6)
-        lay.addLayout(hlay7)
-        lay.addLayout(hlay8)
-        lay.addWidget(self.start_stop_button)
-        lay.addWidget(self.text_edit)
-
-        self.start_stop_button.setEnabled(False)
-
-        self.scrapy_worker = ScrapyWorker(self)
+        self.start_stop_button.toggled.connect(self.on_checked)
         self.scrapy_worker.logChanged.connect(self.insert_log)
         self.scrapy_worker.started.connect(self.text_edit.clear)
         self.scrapy_worker.finished.connect(partial(self.start_stop_button.setChecked, False))
 
-        self.start_stop_button.toggled.connect(self.on_checked)
-        self.project_button.clicked.connect(self.select_project)
-        self.resize(640, 480)
-
     @QtCore.pyqtSlot(bool)
     def on_checked(self, state):
         if state:
-            filename = self.project_le.text()
-            finfo = QtCore.QFileInfo(filename)
-            directory = finfo.dir().absolutePath()
-            self.scrapy_worker.run(directory, self.spider_combobox.currentText())
+            # crapy crawl yellow -a parameters='{"search_item": "house", "locations": ["usa", "germany"]}'
+            search_item = self.search_item_le.text()
+            locations = self.location_widget.get_locations()
+            directory, program, args = utils.create_arguments(search_item, locations)
+            self.scrapy_worker.run(directory, program, args)
             self.start_stop_button.setText('Stop')
         else:
             self.start_stop_button.setText('Start')
             self.scrapy_worker.stop()
-
-    @QtCore.pyqtSlot()
-    def select_project(self):
-        filename, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            "Select .cfg file",
-            QtCore.QDir.currentPath(),
-            "Configure File (*.cfg)"
-        )
-        if filename:
-            self.project_le.setText(filename)
-            finfo = QtCore.QFileInfo(filename)
-            directory = finfo.dir().absolutePath()
-            spiders = self.scrapy_worker.spiders(directory)
-            self.spider_combobox.clear()
-            self.spider_combobox.addItems(spiders)
-            self.start_stop_button.setEnabled(True if spiders else False)
 
     @QtCore.pyqtSlot(str)
     def insert_log(self, text):
@@ -145,6 +135,7 @@ if __name__ == '__main__':
     import sys
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('fusion')
-    w = MainWindow()
+    w = YellowWidget()
+    w.resize(640, 480)
     w.show()
     sys.exit(app.exec_())

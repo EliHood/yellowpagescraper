@@ -7,11 +7,15 @@ Usage:
 
 from setuptools import setup
 
-APP = ['app.py']
+APP = ['main.py']
 DATA_FILES = []
 OPTIONS = {}
 
 setup(
+    install_requires = [
+           "scrapy == 1.5.1",
+           
+    ],
     app=APP,
     data_files=DATA_FILES,
     options={'py2app': OPTIONS},
